@@ -1,0 +1,30 @@
+-- USERS
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    username VARCHAR(255) NOT NULL
+);
+
+-- TRACKS
+CREATE TABLE IF NOT EXISTS tracks (
+    id SERIAL PRIMARY KEY,
+    track_id VARCHAR(255) NOT NULL,
+    artists VARCHAR(255),
+    album_name VARCHAR(255),
+    track_name VARCHAR(255)
+);
+
+-- PLAYLISTS
+CREATE TABLE IF NOT EXISTS playlists (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    username VARCHAR(255) NOT NULL
+);
+
+-- PLAYLIST_TRACKS
+CREATE TABLE IF NOT EXISTS playlist_tracks (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    playlist_id INTEGER REFERENCES playlists(id),
+    track_id INTEGER REFERENCES tracks(id)
+);
