@@ -1,6 +1,9 @@
 # Example workflow
 
-<Create user /user/ (PUT)>
+<Create user /user/ (PUT)
+{
+"username": "string"
+}>
 
 # Testing results
 
@@ -17,4 +20,3 @@
 2. The response received in executing the curl statement:
     Response Body:
       "OK"
-
