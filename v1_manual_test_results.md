@@ -1,29 +1,6 @@
 # Example workflow
 
-<
-Search
-4.1 /search
-Request:
-
-[
-{
-"song": "string",
-"artist": "string",
-"album": "string",
-"year": "integer"
-},
-{
-...
-}
-]
-
-Response:
-
-{
-"song_id”: int
-},
-
->
+<Add song to playlist /playlists/{playlist_id} (PUT)>
 
 # Testing results
 
