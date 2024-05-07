@@ -15,12 +15,6 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
-class search_sort_options(str, Enum):
-    track = "track"
-    album = "album"
-    artist = "artist"
-    genre = "genre"
-    
 @router.get("/")
 def search_tracks(
     track: str = "",
