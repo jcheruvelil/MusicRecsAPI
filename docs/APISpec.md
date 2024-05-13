@@ -44,7 +44,7 @@
 
 **Request**:
 
-````json
+```json
 [
   {
     "artist": "string"
@@ -53,14 +53,15 @@
     ...
   }
 ]
-
+```
 
 **Response**:
+
 ```json
 {
-    "artist": "string"
+  "artist": "string"
 }
-````
+```
 
 ### 2.3 `/recommendation/album` (GET)
 
