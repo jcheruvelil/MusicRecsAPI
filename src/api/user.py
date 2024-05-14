@@ -15,6 +15,9 @@ router = APIRouter(
 class User(BaseModel):
     username: str
 
+class Login(BaseModel):
+    username: str
+
 @router.post("/")
 def create_user(new_user: User):
     with db.engine.begin() as connection:
@@ -39,4 +42,21 @@ def create_user(new_user: User):
         )
         
     return "OK"
-    
+
+@router.post("/login/")
+def login_user(login: Login):
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            f"""
+            SELECT COUNT(*)
+            FROM users 
+            WHERE username = :username
+            """), {"username": login.username}
+        ).scalar_one()
+        
+        if result == 0:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username"
+            )
+        
+    return {"message": "Login successful"}
