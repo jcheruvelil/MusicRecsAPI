@@ -48,7 +48,7 @@
 
 <Create playlist /playlist/ (PUT)
 {
-"username": "string"
+"playlist_name": "string"
 }>
 
 # Testing results
