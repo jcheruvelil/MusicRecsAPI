@@ -38,3 +38,21 @@ CREATE TABLE IF NOT EXISTS playlist_tracks (
     track_id INTEGER REFERENCES tracks(id),
     rating INTEGER REFERENCES rating(id)
 );
+
+-- Search History table
+CREATE TABLE IF NOT EXISTS search_history (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    query VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Recommendation History table
+CREATE TABLE IF NOT EXISTS recommendation_history (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    query VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
