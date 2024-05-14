@@ -46,7 +46,7 @@
 
 # Example workflow CREATE -- PLAYLIST
 
-<Create user /user/ (PUT)
+<Create playlist /playlist/ (PUT)
 {
 "username": "string"
 }>
@@ -56,22 +56,24 @@
 <Repeated for each step of the workflow>
 1. The curl statement called:
     curl -X 'POST' \
-      'https://musicrecs.onrender.com/user/' \
+      'https://musicrecs.onrender.com/playlist/2' \
       -H 'accept: application/json' \
       -H 'access_token: musicrecs' \
       -H 'Content-Type: application/json' \
       -d '{
-      "username": "asa"
+      "playlist_name": "playlist"
     }'
 2. The response received in executing the curl statement:
     Response Body:
-      "OK"
+      {
+        "playlist_id": 6
+      }
 
 # Example workflow ADD SONG -- PLAYLIST
 
-<Create user /user/ (PUT)
+<Add playlist /{playlist_id}/add/{track_id} (PUT)
 {
-"username": "string"
+
 }>
 
 # Testing results
@@ -79,22 +81,19 @@
 <Repeated for each step of the workflow>
 1. The curl statement called:
     curl -X 'POST' \
-      'https://musicrecs.onrender.com/user/' \
+      'https://musicrecs.onrender.com/playlist/6/add/2' \
       -H 'accept: application/json' \
       -H 'access_token: musicrecs' \
-      -H 'Content-Type: application/json' \
-      -d '{
-      "username": "asa"
-    }'
+      -d ''
 2. The response received in executing the curl statement:
     Response Body:
       "OK"
 
 # Example workflow REMOVE SONG -- PLAYLIST
 
-<Create user /user/ (PUT)
+<Remove playlist /{playlist_id}/remove/{track_id} (PUT)
 {
-"username": "string"
+
 }>
 
 # Testing results
@@ -102,22 +101,19 @@
 <Repeated for each step of the workflow>
 1. The curl statement called:
     curl -X 'POST' \
-      'https://musicrecs.onrender.com/user/' \
+      'https://musicrecs.onrender.com/playlist/6/remove/2' \
       -H 'accept: application/json' \
       -H 'access_token: musicrecs' \
-      -H 'Content-Type: application/json' \
-      -d '{
-      "username": "asa"
-    }'
+      -d ''
 2. The response received in executing the curl statement:
     Response Body:
       "OK"
 
 # Example workflow SET -- RATING
 
-<Create user /user/ (PUT)
+<Update rating /rating/{user_id}/{track_id} (PUT)
 {
-"username": "string"
+"value": int
 }>
 
 # Testing results
@@ -125,12 +121,12 @@
 <Repeated for each step of the workflow>
 1. The curl statement called:
     curl -X 'POST' \
-      'https://musicrecs.onrender.com/user/' \
+      'https://musicrecs.onrender.com/rating/3/2' \
       -H 'accept: application/json' \
       -H 'access_token: musicrecs' \
       -H 'Content-Type: application/json' \
       -d '{
-      "username": "asa"
+      "value": 10
     }'
 2. The response received in executing the curl statement:
     Response Body:
