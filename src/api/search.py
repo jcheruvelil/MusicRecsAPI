@@ -28,7 +28,7 @@ def search_tracks(
         
     stmt = (
         sqlalchemy.select(
-            tracks.c.id,
+            tracks.c.track_id,
             tracks.c.track_name,
             tracks.c.album_name, 
             tracks.c.artists
@@ -49,7 +49,7 @@ def search_tracks(
 
         for row in result:
             results.append({
-                "id": row.id,
+                "track_id": row.track_id,
                 "track": row.track_name,
                 "album": row.album_name,
                 "artist": row.artists,
