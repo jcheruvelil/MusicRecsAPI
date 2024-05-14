@@ -2,11 +2,14 @@ import sqlalchemy
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import search, user, recs
+from src.api import search, user, recs, playlist
 import json
 import logging
 import sys
 from starlette.middleware.cors import CORSMiddleware
+
+import sqlalchemy
+from src import database as db
 
 description = """
 MusicRecs is the premier recommendation site for all your musical desires.
@@ -35,6 +38,7 @@ app = FastAPI(
 
 app.include_router(search.router)
 app.include_router(user.router)
+app.include_router(playlist.router)
 app.include_router(recs.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
