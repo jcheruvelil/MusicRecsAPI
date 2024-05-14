@@ -16,17 +16,17 @@ class HistoryItem(BaseModel):
     id: int
     user_id: int
     query: str
-    timestamp: str
+    created_at: str
 
 @router_history.get("/search/history", response_model=List[HistoryItem])
 def get_search_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
-            SELECT id, user_id, query, timestamp
+            SELECT id, user_id, query, created_at
             FROM search_history
             WHERE user_id = :user_id
-            ORDER BY timestamp DESC
+            ORDER BY created_at DESC
             """), {"user_id": user_id}
         ).fetchall()
         
@@ -35,7 +35,7 @@ def get_search_history(user_id: int):
                 status_code=status.HTTP_404_NOT_FOUND, detail="Search history not found"
             )
         
-        search_history = [HistoryItem(id=row.id, user_id=row.user_id, query=row.query, timestamp=row.timestamp) for row in result]
+        search_history = [HistoryItem(id=row.id, user_id=row.user_id, query=row.query, created_at=row.created_at) for row in result]
         
     return search_history
 
@@ -44,10 +44,10 @@ def get_recommendation_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
-            SELECT id, user_id, query, timestamp
+            SELECT id, user_id, query, created_at
             FROM recommendation_history
             WHERE user_id = :user_id
-            ORDER BY timestamp DESC
+            ORDER BY created_at DESC
             """), {"user_id": user_id}
         ).fetchall()
         
@@ -56,7 +56,7 @@ def get_recommendation_history(user_id: int):
                 status_code=status.HTTP_404_NOT_FOUND, detail="Recommendation history not found"
             )
         
-        recommendation_history = [HistoryItem(id=row.id, user_id=row.user_id, query=row.query, timestamp=row.timestamp) for row in result]
+        recommendation_history = [HistoryItem(id=row.id, user_id=row.user_id, query=row.query, created_at=row.created_at) for row in result]
         
     return recommendation_history
 
