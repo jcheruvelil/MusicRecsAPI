@@ -6,7 +6,7 @@ from src.api import auth
 import sqlalchemy
 from src import database as db
 
-router_history = APIRouter(
+router = APIRouter(
     prefix="/history",
     tags=["history"],
     dependencies=[Depends(auth.get_api_key)],
@@ -18,7 +18,7 @@ class HistoryItem(BaseModel):
     query: str
     created_at: str
 
-@router_history.get("/search/history", response_model=List[HistoryItem])
+@router.get("/search/history", response_model=List[HistoryItem])
 def get_search_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -39,7 +39,7 @@ def get_search_history(user_id: int):
         
     return search_history
 
-@router_history.get("/recommendation/history", response_model=List[HistoryItem])
+@router.get("/recommendation/history", response_model=List[HistoryItem])
 def get_recommendation_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -60,7 +60,7 @@ def get_recommendation_history(user_id: int):
         
     return recommendation_history
 
-@router_history.delete("/searchhistory/clear")
+@router.delete("/searchhistory/clear")
 def clear_search_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -77,7 +77,7 @@ def clear_search_history(user_id: int):
         
     return {"message": "Search history cleared"}
 
-@router_history.delete("/recommendationhistory/clear")
+@router.delete("/recommendationhistory/clear")
 def clear_recommendation_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
