@@ -18,6 +18,11 @@ class User(BaseModel):
 class Login(BaseModel):
     username: str
 
+class LibraryItem(BaseModel):
+    id: int
+    title: str
+    author: str
+
 @router.post("/")
 def create_user(new_user: User):
     with db.engine.begin() as connection:
@@ -60,3 +65,23 @@ def login_user(login: Login):
             )
         
     return {"message": "Login successful"}
+
+@router.get("/{user_id}/library", response_model=List[LibraryItem])
+def get_user_library(user_id: int):
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            """
+            SELECT id, title, author 
+            FROM library_items 
+            WHERE user_id = :user_id
+            """), {"user_id": user_id}
+        ).fetchall()
+        
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User library not found"
+            )
+        
+        library_items = [LibraryItem(id=row.id, title=row.title, author=row.author) for row in result]
+        
+    return library_items

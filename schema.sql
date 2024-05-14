@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS tracks (
 CREATE TABLE IF NOT EXISTS playlists (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user_id INTEGER REFERENCES users(id)
+    user_id INTEGER REFERENCES users(id),
+    playlist_name VARCHAR(255)
 );
 
 -- PLAYLIST_TRACKS
@@ -27,4 +28,13 @@ CREATE TABLE IF NOT EXISTS playlist_tracks (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     playlist_id INTEGER REFERENCES playlists(id),
     track_id INTEGER REFERENCES tracks(id)
+);
+
+-- RATINGS
+CREATE TABLE IF NOT EXISTS playlist_tracks (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER REFERENCES users(id),
+    track_id INTEGER REFERENCES tracks(id),
+    rating INTEGER REFERENCES rating(id)
 );
