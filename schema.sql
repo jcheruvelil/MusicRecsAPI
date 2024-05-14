@@ -39,20 +39,18 @@ CREATE TABLE IF NOT EXISTS playlist_tracks (
     rating INTEGER REFERENCES rating(id)
 );
 
--- Search History table
+-- SEARCH HISTORY
 CREATE TABLE IF NOT EXISTS search_history (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER REFERENCES users(id),
     query VARCHAR(255) NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
--- Recommendation History table
+-- RECOMMENDATION HISTORY
 CREATE TABLE IF NOT EXISTS recommendation_history (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER REFERENCES users(id),
     query VARCHAR(255) NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
