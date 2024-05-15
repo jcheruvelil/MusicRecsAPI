@@ -2,7 +2,7 @@ import sqlalchemy
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import search, user, recs, playlist, ratings
+from src.api import search, user, recs, playlist, ratings, history
 import json
 import logging
 import sys
@@ -41,6 +41,7 @@ app.include_router(user.router)
 app.include_router(playlist.router)
 app.include_router(recs.router)
 app.include_router(ratings.router)
+app.include_router(history.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
 @app.exception_handler(ValidationError)
