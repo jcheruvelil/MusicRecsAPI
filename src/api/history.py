@@ -18,7 +18,7 @@ class HistoryItem(BaseModel):
     query: str
     created_at: str
 
-@router.get("/search/history", response_model=List[HistoryItem])
+@router.get("/search", response_model=List[HistoryItem])
 def get_search_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -39,7 +39,7 @@ def get_search_history(user_id: int):
         
     return search_history
 
-@router.get("/recommendation/history", response_model=List[HistoryItem])
+@router.get("/recommendation", response_model=List[HistoryItem])
 def get_recommendation_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -60,7 +60,7 @@ def get_recommendation_history(user_id: int):
         
     return recommendation_history
 
-@router.delete("/searchhistory/clear")
+@router.delete("/search/clear")
 def clear_search_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -77,7 +77,7 @@ def clear_search_history(user_id: int):
         
     return {"message": "Search history cleared"}
 
-@router.delete("/recommendationhistory/clear")
+@router.delete("/recommendation/clear")
 def clear_recommendation_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
