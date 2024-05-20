@@ -7,12 +7,29 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- TRACKS
 CREATE TABLE IF NOT EXISTS tracks (
-    id SERIAL PRIMARY KEY,
-    track_id VARCHAR(255) NOT NULL,
-    artists VARCHAR(255),
-    album_name VARCHAR(255),
-    track_name VARCHAR(255)
-);
+    id bigint NOT NULL,
+    track_id text NOT NULL,
+    artists text,
+    album_name text NOT NULL,
+    track_name text NOT NULL,
+    popularity bigint NOT NULL,
+    duration_ms bigint NOT NULL,
+    'explicit' boolean NOT NULL,
+    danceability real NOT NULL,
+    energy real NOT NULL,
+    'key' smallint NOT NULL,
+    loudness real NOT NULL,
+    mode smallint NOT NULL,
+    speechiness real NOT NULL,
+    acousticness real NOT NULL,
+    instrumentalness double precision NOT NULL,
+    liveness real NOT NULL,
+    valence real NOT NULL,
+    tempo real NOT NULL,
+    time_signature smallint NOT NULL,
+    track_genre text NOT NULL
+    features_vector vector NOT NULL
+)
 
 -- PLAYLISTS
 CREATE TABLE IF NOT EXISTS playlists (
