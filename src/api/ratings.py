@@ -18,7 +18,7 @@ class Rating(BaseModel):
     value: int
 
 @router.post("/{user_id}/{track_id}")
-def set_rating(user_id: int, track_id: int, rating: Rating):
+def set_rating(user_id: int, track_id: str, rating: Rating):
     with db.engine.begin() as connection:
         
         # Validate input
@@ -48,7 +48,7 @@ def set_rating(user_id: int, track_id: int, rating: Rating):
             f"""
             SELECT COUNT(*)
             FROM tracks
-            WHERE id = '{track_id}'
+            WHERE track_id = '{track_id}'
             """)
         ).scalar_one()
         
