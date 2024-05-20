@@ -65,7 +65,7 @@ def create_playlist(user_id: int, playlist: Playlist):
     return {"playlist_id": playlist_id}
 
 @router.post("/{playlist_id}/add/{track_id}")
-def add_song_to_playlist(playlist_id: int, track_id: int):
+def add_song_to_playlist(playlist_id: int, track_id: str):
     with db.engine.begin() as connection:
         # Check if playlist exists
         result = connection.execute(sqlalchemy.text(
@@ -86,7 +86,7 @@ def add_song_to_playlist(playlist_id: int, track_id: int):
             f"""
             SELECT COUNT(*)
             FROM tracks
-            WHERE id = '{track_id}'
+            WHERE track_id = '{track_id}'
             """)
         ).scalar_one()
         
@@ -104,7 +104,7 @@ def add_song_to_playlist(playlist_id: int, track_id: int):
     return "OK"
 
 @router.post("/{playlist_id}/remove/{track_id}")
-def remove_song_from_playlist(playlist_id: int, track_id: int):
+def remove_song_from_playlist(playlist_id: int, track_id: str):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             f"""
