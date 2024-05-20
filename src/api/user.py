@@ -40,13 +40,14 @@ def create_user(new_user: User):
                 status_code=status.HTTP_409_CONFLICT, detail="Username already exists"
             ) 
         
-        result = connection.execute(sqlalchemy.text(
+        user_id = connection.execute(sqlalchemy.text(
             f"""
             INSERT INTO users (username)
-            VALUES ('{new_user.username}')""")
-        )
+            VALUES ('{new_user.username}')
+            RETURNING id""")
+        ).scalar_one()
         
-    return "OK"
+    return {"user_id": user_id}
 
 @router.post("/login/")
 def login_user(login: Login):
