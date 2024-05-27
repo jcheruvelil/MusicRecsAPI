@@ -33,7 +33,7 @@ def create_user(new_user: User):
             FROM users 
             WHERE username = :username
             """),
-            {"username": {new_user.username}}
+            {"username": new_user.username}
         ).scalar_one()
         
         if result != 0:
@@ -46,7 +46,7 @@ def create_user(new_user: User):
             INSERT INTO users (username)
             VALUES (:username)
             RETURNING id"""),
-            {"username": {new_user.username}}
+            {"username": new_user.username}
         ).scalar_one()
         
     return {"user_id": user_id}
@@ -77,7 +77,8 @@ def get_user_library(user_id: int):
             SELECT id, playlist_name
             FROM playlists 
             WHERE user_id = :user_id
-            """), {"user_id": user_id}
+            """), 
+            {"user_id": user_id}
         ).fetchall()
         
         if not result:
