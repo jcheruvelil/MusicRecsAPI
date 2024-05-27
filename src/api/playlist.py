@@ -23,14 +23,15 @@ def create_playlist(user_id: int, playlist: Playlist):
             f"""
             SELECT COUNT(*)
             FROM users
-            WHERE id = '{user_id}'
-            """)
+            WHERE id = :user_id
+            """),
+            {"user_id": user_id}
         ).scalar_one()
         
         if result < 1:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"User with username {user_id} does not exist"
+                detail=f"User with id {user_id} does not exist"
             )
         
         # Check if user already has a playlist with this name
@@ -40,9 +41,10 @@ def create_playlist(user_id: int, playlist: Playlist):
             FROM playlists
             JOIN users ON playlists.user_id = users.id
             WHERE 
-                users.id = '{user_id}' AND
-                playlists.playlist_name = '{playlist.playlist_name}'
-            """)
+                users.id = :user_id AND
+                playlists.playlist_name = :playlist_name
+            """),
+            {"user_id": user_id, "playlist_name": playlist.playlist_name}
         ).scalar_one()
         
         if result != 0:
@@ -56,10 +58,11 @@ def create_playlist(user_id: int, playlist: Playlist):
             sqlalchemy.text(
                 f"""
                 INSERT INTO playlists (user_id, playlist_name)
-                VALUES ('{user_id}', '{playlist.playlist_name}')
+                VALUES (:user_id, :playlist_name)
                 RETURNING id
                 """
-            )
+            ),
+            {"user_id": user_id, "playlist_name": playlist.playlist_name}
         ).scalar_one()
         
     return {"playlist_id": playlist_id}
@@ -72,8 +75,9 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             f"""
             SELECT COUNT(*)
             FROM playlists
-            WHERE id = '{playlist_id}'
-            """)
+            WHERE id = :id
+            """),
+            {"playlist_id": playlist_id}
         ).scalar_one()
         
         if result < 1:
@@ -86,8 +90,9 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             f"""
             SELECT COUNT(*)
             FROM tracks
-            WHERE track_id = '{track_id}'
-            """)
+            WHERE track_id = :track_id
+            """),
+            {"track_id": track_id}
         ).scalar_one()
         
         if result < 1:
@@ -98,7 +103,8 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
         result = connection.execute(sqlalchemy.text(
             f"""
             INSERT INTO playlist_tracks (playlist_id, track_id)
-            VALUES ('{playlist_id}', '{track_id}')""")
+            VALUES (:playlist_id, :track_id)"""),
+            {"playlist_id": playlist_id, "track_id": track_id}
         )
         
     return "OK"
@@ -111,9 +117,10 @@ def remove_song_from_playlist(playlist_id: int, track_id: str):
             DELETE
             FROM playlist_tracks
             WHERE 
-                playlist_id = '{playlist_id}' AND
-                track_id = '{track_id}'
-            """)
+                playlist_id = :playlist_id AND
+                track_id = :track_id
+            """),
+            {"playlist_id": playlist_id, "track_id": track_id}
         )
         
     return "OK"

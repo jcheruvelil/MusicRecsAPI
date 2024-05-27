@@ -31,8 +31,9 @@ def create_user(new_user: User):
             f"""
             SELECT COUNT(*) 
             FROM users 
-            WHERE username = '{new_user.username}'
-            """)
+            WHERE username = :username
+            """),
+            {"username": {new_user.username}}
         ).scalar_one()
         
         if result != 0:
@@ -43,8 +44,9 @@ def create_user(new_user: User):
         user_id = connection.execute(sqlalchemy.text(
             f"""
             INSERT INTO users (username)
-            VALUES ('{new_user.username}')
-            RETURNING id""")
+            VALUES (:username)
+            RETURNING id"""),
+            {"username": {new_user.username}}
         ).scalar_one()
         
     return {"user_id": user_id}

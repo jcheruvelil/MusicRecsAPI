@@ -33,14 +33,15 @@ def set_rating(user_id: int, track_id: str, rating: Rating):
             f"""
             SELECT COUNT(*)
             FROM users
-            WHERE id = '{user_id}'
-            """)
+            WHERE id = :id
+            """),
+            {"id": user_id}
         ).scalar_one()
         
         if result < 1:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"User with username {user_id} does not exist"
+                detail=f"User with id {user_id} does not exist"
             )
         
         # Check if track exists
@@ -48,8 +49,9 @@ def set_rating(user_id: int, track_id: str, rating: Rating):
             f"""
             SELECT COUNT(*)
             FROM tracks
-            WHERE track_id = '{track_id}'
-            """)
+            WHERE track_id = :track_id
+            """),
+            {"track_id": track_id}
         ).scalar_one()
         
         if result < 1:
@@ -65,9 +67,10 @@ def set_rating(user_id: int, track_id: str, rating: Rating):
             FROM ratings
             JOIN users ON ratings.user_id = users.id
             WHERE 
-                users.id = '{user_id}' AND
-                ratings.track_id = '{track_id}'
-            """)
+                users.id = :user_id AND
+                ratings.track_id = :track_id
+            """),
+            {"user_id": user_id, "track_id": track_id}
         ).scalar_one()
         
         if result > 0:
@@ -77,17 +80,17 @@ def set_rating(user_id: int, track_id: str, rating: Rating):
                 UPDATE ratings
                 SET rating = :rating
                 WHERE 
-                    user_id = '{user_id}' AND
-                    track_id = '{track_id}'
+                    user_id = :user_id AND
+                    track_id = :track_id
                 """),
-                [{"rating": rating.value}]
+                [{"rating": rating.value, "user_id": user_id, "track_id": track_id}]
             )
         else:
             connection.execute(
                 sqlalchemy.text(f"""
                 INSERT INTO ratings (user_id, track_id, rating)
-                VALUES ('{user_id}', '{track_id}', :rating)"""),
-                [{"rating": rating.value}]
+                VALUES (:user_id, :track_id, :rating)"""),
+                [{"rating": rating.value, "user_id": user_id, "track_id": track_id}]
             )
         
     return "OK"
