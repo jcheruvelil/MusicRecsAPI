@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/")
-def get_rec(track_id: str):
+def get_rec(user_id: int, track_id: str):
     input_stmt = """
                 SELECT features_vector
                 FROM tracks
@@ -51,6 +51,11 @@ def get_rec(track_id: str):
 
         recs = []
         result = connection.execute(sqlalchemy.text(recs_stmt), [{"track_id": track_id}]).fetchall()
+
+        connection.execute(sqlalchemy.text("""
+                                           INSERT INTO recommendation_history (user_id, query)
+                                           VALUES (:user_id, :input_track)"""),
+                                           {"user_id": user_id, "input_track": track_id})
 
         for row in result:
             recs.append({

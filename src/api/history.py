@@ -12,18 +12,18 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
-class HistoryItem(BaseModel):
-    id: int
-    user_id: int
+class SearchItem(BaseModel):
     query: str
-    created_at: str
 
-@router.get("/search", response_model=List[HistoryItem])
+class RecommendationItem(BaseModel):
+    input_track_id: str
+
+@router.get("/search", response_model=List[SearchItem])
 def get_search_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
-            SELECT id, user_id, query, created_at
+            SELECT query, created_at
             FROM search_history
             WHERE user_id = :user_id
             ORDER BY created_at DESC
@@ -35,11 +35,11 @@ def get_search_history(user_id: int):
                 status_code=status.HTTP_404_NOT_FOUND, detail="Search history not found"
             )
         
-        search_history = [HistoryItem(id=row.id, user_id=row.user_id, query=row.query, created_at=row.created_at) for row in result]
+        search_history = [SearchItem(query=row.query) for row in result]
         
     return search_history
 
-@router.get("/recommendation", response_model=List[HistoryItem])
+@router.get("/recommendation", response_model=List[RecommendationItem])
 def get_recommendation_history(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
@@ -56,7 +56,7 @@ def get_recommendation_history(user_id: int):
                 status_code=status.HTTP_404_NOT_FOUND, detail="Recommendation history not found"
             )
         
-        recommendation_history = [HistoryItem(id=row.id, user_id=row.user_id, query=row.query, created_at=row.created_at) for row in result]
+        recommendation_history = [RecommendationItem(input_track_id=row.query) for row in result]
         
     return recommendation_history
 

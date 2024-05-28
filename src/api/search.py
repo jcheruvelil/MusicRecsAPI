@@ -17,11 +17,13 @@ router = APIRouter(
 
 @router.get("/")
 def search_tracks(
+    user_id: int,
     track: str = "",
     artist: str = "",
-    album: str = "",
+    album: str = ""
 ):
     results = []
+    query = ""
     # Use reflection to derive table schema.
     metadata_obj = sqlalchemy.MetaData()
     tracks = sqlalchemy.Table("tracks", metadata_obj, autoload_with=db.engine)
@@ -39,12 +41,15 @@ def search_tracks(
     
     if track != "":
         stmt = stmt.where(tracks.c.track_name.ilike(f"%{track}%"))
+        query += f'{track} '
     
     if album != "":
         stmt = stmt.where(tracks.c.album_name.ilike(f"%{album}%"))
+        query += f'{album} '
     
     if artist != "":
         stmt = stmt.where(tracks.c.artists.ilike(f"%{artist}%"))
+        query += f'{artist} '
         
     with db.engine.begin() as connection:
         result = connection.execute(stmt)
@@ -56,6 +61,11 @@ def search_tracks(
                 "album": row.album_name,
                 "artist": row.artists,
             })
+
+        connection.execute(sqlalchemy.text("""
+                                           INSERT INTO search_history (user_id, query)
+                                           VALUES (:user_id, :query)"""),
+                                           {"user_id": user_id, "query": query})
     
     return {
         "results": results,
