@@ -100,7 +100,25 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Track does not exist"
             )
         
+        # Check if playlist contains track already
         result = connection.execute(sqlalchemy.text(
+            f"""
+            SELECT COUNT(*)
+            FROM playlist_tracks
+            WHERE 
+                playlist_id = :playlist_id AND
+                track_id = :track_id
+            """),
+            {"playlist_id": playlist_id, "track_id": track_id}
+        ).scalar_one()
+        
+        if result < 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Playlist already contains this track"
+            )
+        
+        # Add track to playlist
+        connection.execute(sqlalchemy.text(
             f"""
             INSERT INTO playlist_tracks (playlist_id, track_id)
             VALUES (:playlist_id, :track_id)"""),
