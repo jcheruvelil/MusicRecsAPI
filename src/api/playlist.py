@@ -75,7 +75,7 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             f"""
             SELECT COUNT(*)
             FROM playlists
-            WHERE id = :id
+            WHERE id = :playlist_id
             """),
             {"playlist_id": playlist_id}
         ).scalar_one()
