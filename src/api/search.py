@@ -33,6 +33,8 @@ def search_tracks(
             tracks.c.album_name, 
             tracks.c.artists
         )
+        .limit(10)
+        .order_by(tracks.c.track_name)
     )
     
     if track != "":
