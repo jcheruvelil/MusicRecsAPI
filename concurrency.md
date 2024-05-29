@@ -46,6 +46,9 @@ Without proper concurrency control, the following phenomena could occur:
     DB-->>UserB: popularity = 90 (uncommitted)
     UserA->>DB: COMMIT
 
+    ![image](https://github.com/jcheruvelil/MusicRecsAPI/assets/54489933/9f724daf-dba4-401d-be29-efcada5158eb)
+
+
 ### 2. Non-repeatable Read
 
     sequenceDiagram
@@ -62,6 +65,9 @@ Without proper concurrency control, the following phenomena could occur:
     DB-->>UserA: rating = 4
     UserA->>DB: COMMIT
 
+    ![image](https://github.com/jcheruvelil/MusicRecsAPI/assets/54489933/7ec27a3d-bcec-40d9-a1aa-2fa0e8d1fa90)
+
+
 ### 3. Phantom Read
 
     sequenceDiagram
@@ -77,3 +83,6 @@ Without proper concurrency control, the following phenomena could occur:
     UserA->>DB: SELECT * FROM playlist_tracks WHERE playlist_id = 1
     DB-->>UserA: track_ids = [1, 2, 3, 4]
     UserA->>DB: COMMIT
+
+    ![image](https://github.com/jcheruvelil/MusicRecsAPI/assets/54489933/5b291014-92cf-4b73-bc77-53aa79e119f3)
+
