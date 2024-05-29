@@ -159,7 +159,7 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
         
     return "OK"
 
-@router.post("/{playlist_id}/remove/{track_id}")
+@router.delete("/{playlist_id}/remove/{track_id}")
 def remove_song_from_playlist(playlist_id: int, track_id: str):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(

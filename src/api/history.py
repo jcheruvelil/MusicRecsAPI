@@ -27,6 +27,7 @@ def get_search_history(user_id: int):
             FROM search_history
             WHERE user_id = :user_id
             ORDER BY created_at DESC
+            LIMIT 10
             """), {"user_id": user_id}
         ).fetchall()
         
@@ -48,6 +49,7 @@ def get_recommendation_history(user_id: int):
             FROM recommendation_history
             WHERE user_id = :user_id
             ORDER BY created_at DESC
+            LIMIT 10
             """), {"user_id": user_id}
         ).fetchall()
         

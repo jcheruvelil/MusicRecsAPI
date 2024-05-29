@@ -2,7 +2,7 @@
 
 ## 1. User
 
-### 1.1 Create User
+### 1.1 Create User `/user` (POST)
 
 Given a username, creates a user, returning their userID. 
 
@@ -21,9 +21,42 @@ Given a username, creates a user, returning their userID.
 }
 ```
 
+### 1.2 Login `/user/login/` (GET)
+Given a username that is already created, returns their userID.
+**Request**:
+
+```json
+{
+    "username": "string"
+}
+```
+**Response**:
+
+```json
+{
+    "user_id": "integer"
+}
+```
+
+### 1.3 Get user library `/user/{user_id}/library` (GET)
+Given a user_id, displays a list of all of their created playlists.
+**Request**:
+
+```json
+{
+    "username": "string"
+}
+```
+**Response**:
+```json
+{
+    "user_id": "integer"
+}
+```
+
 ## 2. Searching
 
-### 2.6. Search Music System Library - `/search` (GET)
+### 2.1. Search Music System Library - `/search` (GET)
 Searches for tracks based on specified query parameters.
 
 **Query Parameters**:
@@ -68,9 +101,28 @@ Creates a playlist, returning the id of a playlist to use. Playlists are created
 
 Adds track with track_id to playlist with playlist_id.
 
-### 3.3 Remove track from playlist - `/playlist/{playlist_id}/remove/{track_id}` (POST)
+**Query Parameters**:
+
+- `playlist_id` : The unique id of the playlist to add to.
+- `track_id` : The unique track_id of the track to add.
+
+### 3.3 Remove track from playlist - `/playlist/{playlist_id}/remove/{track_id}` (DELETE)
 
 Removes track with track_id from playlist with playlist_id.
+
+**Query Parameters**:
+
+- `playlist_id` : The unique id of the playlist to remove from.
+- `track_id` : The unique track_id of the track to remove.
+
+### 3.4 Get Playlist - `/playlist/{playlist_id}` (GET)
+
+Get all songs contained in playlist with playlist_id.
+
+**Query Parameters**:
+
+- `playlist_id` : The unique id of the playlist.
+
 
 ## 4. Recommendations
 
@@ -91,9 +143,46 @@ The API returns a JSON object with the following structure:
     - `album`   : The name of the album.
     - `artist`  : The name of the artist.
 
+### 4.2 Get Song Recommendations from User Ratings - `/recs/ratings/{user_id}` - (GET)
+Returns list of 10 similar songs that user may enjoy based on a user's rated songs.
+
+**Query Parameters**:
+
+- `user_id` : The ID of the user for which recommendations are to be fetched.
+
+**Response**:
+
+The API returns a JSON object with the following structure:
+
+- `recommendations`: An array of objects, each representing a track. Each track object has the following properties:
+    - `track_id` : The unique track_id of the track.
+    - `track`   : The name of the track.
+    - `album`   : The name of the album.
+    - `artist`  : The name of the artist.
+
+### 4.3 Get Song Recommendations from Playlist - `/recs/{playlist_id}` - (GET)
+Returns list of 10 similar songs that user may enjoy based on a user's playlist.
+
+**Query Parameters**:
+
+- `playlist_id` : The ID of the playlist for which recommendations are to be fetched.
+
+**Response**:
+
+The API returns a JSON object with the following structure:
+
+- `recommendations`: An array of objects, each representing a track. Each track object has the following properties:
+    - `track_id` : The unique track_id of the track.
+    - `track`   : The name of the track.
+    - `album`   : The name of the album.
+    - `artist`  : The name of the artist.
+
+
 ## 5. Ratings
 
 ### 5.1 Update Rating - `/rating/{user_id}/{track_id}` (POST)
+
+Set rating of a track (rating between 0 and 10)
 
 **Request**:
 
@@ -103,13 +192,85 @@ The API returns a JSON object with the following structure:
 }
 ```
 
+**Response**:
+
+    "OK"
+
+
 ## 6. History
 
 ### 6.1 Get Search History - `/history/search` (GET)
 
+Get 10 last search queries.
+
+**Query Parameters**:
+
+- `user_id` : The unique ID of the user for which search history should be fetched.
+
+**Response**:
+
+```json
+{
+    [
+        {
+            "query": "string"
+        },
+        {
+            ...
+        }
+    ]
+}
+```
+
+
 ### 6.2 Get Recommendation History - `/history/recommendation` (GET)
+
+Get 10 last track_id queries for recommendations.
+
+**Query Parameters**:
+
+- `user_id` : The unique ID of the user for which recommendation history should be fetched.
+
+**Response**:
+
+```json
+{
+    [
+        {
+            "input_track_id": "string"
+        },
+        {
+            ...
+        }
+    ]
+}
+```
 
 ### 6.3 Clear Search History - `/history/search/clear` (DELETE)
 
-### 6.4 Clear Search History - `/history/recommendation/clear` (DELETE)
+**Query Parameters**:
 
+- `user_id` : The unique ID of the user for which search history should be cleared.
+
+**Response**:
+
+```json
+{
+  "message": "Search history cleared"
+}
+```
+
+
+### 6.4 Clear Recommendation History - `/history/recommendation/clear` (DELETE)
+
+**Query Parameters**:
+
+- `user_id` : The unique ID of the user for which recommendation history should be cleared.
+
+**Response**:
+
+```json
+{
+  "message": "Recommendation history cleared"
+}
+```

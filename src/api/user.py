@@ -54,20 +54,21 @@ def create_user(new_user: User):
 @router.post("/login/")
 def login_user(login: Login):
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(
-            f"""
-            SELECT COUNT(*)
-            FROM users 
-            WHERE username = :username
-            """), {"username": login.username}
-        ).scalar_one()
+        try:
+            user_id = connection.execute(sqlalchemy.text(
+                """
+                SELECT id
+                FROM users 
+                WHERE username = :username
+                """), {"username": login.username}
+            ).scalar_one()
         
-        if result == 0:
+        except:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username"
             )
         
-    return {"message": "Login successful"}
+    return {"user_id": user_id}
 
 @router.get("/{user_id}/library")
 def get_user_library(user_id: int):
