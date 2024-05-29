@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, Request
 from src.api import auth
 import sqlalchemy
+import math
 from src import database as db
+
+from sqlalchemy import func, select, cast, text
 
 
 song_feature_cols = ['popularity', 'duration_ms', 'danceability',
@@ -68,3 +71,76 @@ def get_rec(user_id: int, track_id: str):
         return{
             "recommendations": recs
         }
+        
+@router.get("/ratings/{user_id}")
+def get_rec_from_library(user_id: int):
+    input_stmt = """
+        SELECT rating, features_vector
+        FROM ratings
+        JOIN tracks ON tracks.track_id = ratings.track_id
+        WHERE user_id = :user_id
+        """
+    
+    library_vector = [0 for i in range(13)]
+    num_results = 0
+    
+    with db.engine.connect() as connection: 
+        result = connection.execute(
+            sqlalchemy.text(
+                input_stmt
+            ),
+            {"user_id": user_id}
+        )
+        
+        for row in result:
+            num_results+=1
+            features_string = row.features_vector.strip('[]')
+            features_list = features_string.split(',')
+            features_array = [float(i) for i in features_list]
+            for i, value in enumerate(features_array):
+                library_vector[i] += value * row.rating
+    
+    if num_results == 0:
+        return []
+    
+    # Normalize the vector
+    magnitude = math.sqrt(sum(v**2 for v in library_vector))
+    
+    print(f"magnitude: {magnitude}")
+    library_vector = [v/magnitude for v in library_vector]
+    print(library_vector)
+        
+    # Get recommendations
+    recs_stmt = """
+        SELECT
+            t.track_id,
+            t.track_name,
+            t.album_name,
+            t.artists,
+            1 - (t.features_vector <=> :library_vector) AS similarity
+        FROM tracks t
+        ORDER BY similarity DESC
+        LIMIT 10;
+    """
+    # WHERE t.track_id != :track_id
+    
+    with db.engine.begin() as connection:
+        recs = []
+        result = connection.execute(sqlalchemy.text(recs_stmt), [{"library_vector": str(library_vector)}]).fetchall()
+
+        for row in result:
+            recs.append({
+                    "id": row.track_id,
+                    "track": row.track_name,
+                    "album": row.album_name,
+                    "artist": row.artists,
+            })
+
+        return{
+            "recommendations": recs
+        }
+    
+            
+        
+        
+    
