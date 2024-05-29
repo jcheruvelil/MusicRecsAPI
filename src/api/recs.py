@@ -73,7 +73,7 @@ def get_rec(user_id: int, track_id: str):
         }
         
 @router.get("/ratings/{user_id}")
-def get_rec_from_library(user_id: int):
+def get_rec_from_ratings(user_id: int):
     input_stmt = """
         SELECT rating, features_vector
         FROM ratings
