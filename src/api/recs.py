@@ -122,7 +122,6 @@ def get_rec_from_library(user_id: int):
         ORDER BY similarity DESC
         LIMIT 10;
     """
-    # WHERE t.track_id != :track_id
     
     with db.engine.begin() as connection:
         recs = []
