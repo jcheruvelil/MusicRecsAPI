@@ -10,7 +10,7 @@ We use:
 
 1. **Locking** locks are used to prevent multiple transactions from modifying a single row at once.
 2. **Time Stamp Protocol** utilized to ensure stability in our transactions, using time stamps to determine a transactions order compared to another
-3.
+3. **Atomicity** by ensuring that each transaction is atomic, it allows for every operation in a transaction either occuring and working correctly, or completely none to prevent half updates.
 
 ## Potential Phenomena without Concurrency Control
 
