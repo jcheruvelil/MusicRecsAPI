@@ -15,6 +15,38 @@ router = APIRouter(
 class Playlist(BaseModel):
     playlist_name: str
 
+@router.get("/{playlist_id}")
+def get_playlist(playlist_id: int):
+    playlist_results = []
+
+    with db.engine.begin() as connection:
+        try:
+            playlist_name = connection.execute(sqlalchemy.text("SELECT playlist_name FROM playlists WHERE id = :playlist_id"),
+                                            {"playlist_id": playlist_id}).scalar_one()
+
+        except:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail="Playlist does not exist"
+            )
+        
+        result = connection.execute(sqlalchemy.text("""
+                                                    SELECT tracks.track_id, artists, album_name, track_name
+                                                    FROM playlist_tracks
+                                                    JOIN tracks ON tracks.track_id = playlist_tracks.track_id
+                                                    WHERE playlist_id = :playlist_id
+                                                    """), {"playlist_id": playlist_id})
+        
+        for row in result:
+            playlist_results.append({
+                "track_id": row.track_id,
+                "track": row.track_name,
+                "album": row.album_name,
+                "artist": row.artists,
+            })
+
+        return {f"{playlist_name}: ": playlist_results}
+
 @router.post("/{user_id}")
 def create_playlist(user_id: int, playlist: Playlist):
     with db.engine.begin() as connection:
