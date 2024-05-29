@@ -81,7 +81,7 @@ def get_rec_from_ratings(user_id: int):
         WHERE user_id = :user_id
         """
     
-    library_vector = [0 for i in range(13)]
+    ratings_vector = [0 for i in range(13)]
     num_results = 0
     
     with db.engine.connect() as connection: 
@@ -98,17 +98,15 @@ def get_rec_from_ratings(user_id: int):
             features_list = features_string.split(',')
             features_array = [float(i) for i in features_list]
             for i, value in enumerate(features_array):
-                library_vector[i] += value * row.rating
+                ratings_vector[i] += value * row.rating
     
     if num_results == 0:
         return []
     
     # Normalize the vector
-    magnitude = math.sqrt(sum(v**2 for v in library_vector))
+    magnitude = math.sqrt(sum(v**2 for v in ratings_vector))
     
-    print(f"magnitude: {magnitude}")
-    library_vector = [v/magnitude for v in library_vector]
-    print(library_vector)
+    ratings_vector = [v/magnitude for v in ratings_vector]
         
     # Get recommendations
     recs_stmt = """
@@ -117,15 +115,20 @@ def get_rec_from_ratings(user_id: int):
             t.track_name,
             t.album_name,
             t.artists,
-            1 - (t.features_vector <=> :library_vector) AS similarity
+            1 - (t.features_vector <=> :ratings_vector) AS similarity
         FROM tracks t
+        WHERE t.track_id NOT IN (
+            SELECT track_id 
+            FROM ratings
+            WHERE user_id = :user_id
+        )
         ORDER BY similarity DESC
         LIMIT 10;
     """
     
     with db.engine.begin() as connection:
         recs = []
-        result = connection.execute(sqlalchemy.text(recs_stmt), [{"library_vector": str(library_vector)}]).fetchall()
+        result = connection.execute(sqlalchemy.text(recs_stmt), [{"user_id": user_id, "ratings_vector": str(ratings_vector)}]).fetchall()
 
         for row in result:
             recs.append({
@@ -139,7 +142,6 @@ def get_rec_from_ratings(user_id: int):
             "recommendations": recs
         }
     
-        
 @router.get("/{playlist_id}")
 def get_rec_from_playlist(playlist_id: int):
     input_stmt = """
