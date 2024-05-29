@@ -32,3 +32,48 @@ Without proper concurrency control, the following phenomena could occur:
 - **Scenario**: User A queries all tracks in a playlist, User B adds a new track to the playlist, and User A queries the playlist again, seeing the new track.
 
 ## Respective Sequence Diagrams
+
+### 1. Dirty Read
+
+    sequenceDiagram
+    participant UserA as User A
+    participant UserB as User B
+    participant DB as Database
+
+    UserA->>DB: BEGIN TRANSACTION
+    UserA->>DB: UPDATE tracks SET popularity = 90 WHERE track_id = 1
+    UserB->>DB: SELECT popularity FROM tracks WHERE track_id = 1
+    DB-->>UserB: popularity = 90 (uncommitted)
+    UserA->>DB: COMMIT
+
+### 2. Non-repeatable Read
+
+    sequenceDiagram
+    participant UserA as User A
+    participant UserB as User B
+    participant DB as Database
+
+    UserA->>DB: BEGIN TRANSACTION
+    UserA->>DB: SELECT rating FROM ratings WHERE track_id = 1
+    DB-->>UserA: rating = 5
+    UserB->>DB: UPDATE ratings SET rating = 4 WHERE track_id = 1
+    UserB->>DB: COMMIT
+    UserA->>DB: SELECT rating FROM ratings WHERE track_id = 1
+    DB-->>UserA: rating = 4
+    UserA->>DB: COMMIT
+
+### 3. Phantom Read
+
+    sequenceDiagram
+    participant UserA as User A
+    participant UserB as User B
+    participant DB as Database
+
+    UserA->>DB: BEGIN TRANSACTION
+    UserA->>DB: SELECT * FROM playlist_tracks WHERE playlist_id = 1
+    DB-->>UserA: track_ids = [1, 2, 3]
+    UserB->>DB: INSERT INTO playlist_tracks (playlist_id, track_id) VALUES (1, 4)
+    UserB->>DB: COMMIT
+    UserA->>DB: SELECT * FROM playlist_tracks WHERE playlist_id = 1
+    DB-->>UserA: track_ids = [1, 2, 3, 4]
+    UserA->>DB: COMMIT
