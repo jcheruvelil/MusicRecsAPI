@@ -1,0 +1,8 @@
+- Added/fixed parameter bindings to prevent against sql injection attacks in user.py, playlist.py, and ratings.py
+- Removed !='' in search.py for cleaner code
+- Added support for search/recommendation history (adds to history in search.py and recs.py)
+- Updated APISpec request and response bodies to be consistent with actual implementation
+- Login user now returns your userid to be used in our other functions
+- Added get_playlist function so user can see songs they added
+- Skip duplicate track additions to playlists
+- Added limiting and ordering to search

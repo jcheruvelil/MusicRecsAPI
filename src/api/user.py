@@ -28,7 +28,7 @@ def create_user(new_user: User):
     with db.engine.begin() as connection:
         
         result = connection.execute(sqlalchemy.text(
-            f"""
+            """
             SELECT COUNT(*) 
             FROM users 
             WHERE username = :username
@@ -42,7 +42,7 @@ def create_user(new_user: User):
             ) 
         
         user_id = connection.execute(sqlalchemy.text(
-            f"""
+            """
             INSERT INTO users (username)
             VALUES (:username)
             RETURNING id"""),

@@ -39,15 +39,15 @@ def search_tracks(
         .order_by(tracks.c.track_name)
     )
     
-    if track != "":
+    if track:
         stmt = stmt.where(tracks.c.track_name.ilike(f"%{track}%"))
         query += f'{track} '
     
-    if album != "":
+    if album:
         stmt = stmt.where(tracks.c.album_name.ilike(f"%{album}%"))
         query += f'{album} '
     
-    if artist != "":
+    if artist:
         stmt = stmt.where(tracks.c.artists.ilike(f"%{artist}%"))
         query += f'{artist} '
         
