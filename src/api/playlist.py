@@ -127,7 +127,7 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             {"track_id": track_id}
         ).scalar_one()
         
-        if result < 1:
+        if result != 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Track does not exist"
             )
