@@ -130,19 +130,19 @@ def populate_fake_data(num_users: int):
     # print(f"min rating: {min(ratings)}")
 
 
-    print(playlists_sample_distribution)
+    # print(playlists_sample_distribution)
     print(f"max num_playlists: {max(playlists_sample_distribution)}")
     print(f"min num_playlists: {min(playlists_sample_distribution)}")
     print(f"avg num_playlists: {sum(playlists_sample_distribution)/num_users}")
-    print(ratings_sample_distribution)
+    # print(ratings_sample_distribution)
     print(f"max rating: {max(ratings_sample_distribution)}")
     print(f"min rating: {min(ratings_sample_distribution)}")
     print(f"avg rating: {sum(ratings_sample_distribution)/num_users}")
-    print(search_sample_distribution)
+    # print(search_sample_distribution)
     print(f"max search: {max(search_sample_distribution)}")
     print(f"min search: {min(search_sample_distribution)}")
     print(f"avg search: {sum(search_sample_distribution)/num_users}")
-    print(rec_sample_distribution)
+    # print(rec_sample_distribution)
     print(f"max rec: {max(rec_sample_distribution)}")
     print(f"min rec: {min(rec_sample_distribution)}")
     print(f"avg rec: {sum(rec_sample_distribution)/num_users}")
@@ -165,7 +165,7 @@ def populate_fake_data(num_users: int):
             
         after = datetime.datetime.now()
         
-        print(f"time to create user: {(after-before).total_seconds()}")
+        # print(f"time to create user: {(after-before).total_seconds()}")
         
         # Create playlists
         before = datetime.datetime.now()
@@ -212,7 +212,7 @@ def populate_fake_data(num_users: int):
                     
         after = datetime.datetime.now()
         
-        print(f"time to create playlists: {(after-before).total_seconds()}")
+        # print(f"time to create playlists: {(after-before).total_seconds()}")
         
         # Create ratings
         before = datetime.datetime.now()
@@ -237,7 +237,7 @@ def populate_fake_data(num_users: int):
                 )
         after = datetime.datetime.now()
         
-        print(f"time to create ratings: {(after-before).total_seconds()}")
+        # print(f"time to create ratings: {(after-before).total_seconds()}")
             
         # Execute rec requests -> populate rec history
         before = datetime.datetime.now()
@@ -258,7 +258,7 @@ def populate_fake_data(num_users: int):
                     
         after = datetime.datetime.now()
         
-        print(f"time to execute rec requests: {(after-before).total_seconds()}")
+        # print(f"time to execute rec requests: {(after-before).total_seconds()}")
             
         # Execute searches -> populate search history
         before = datetime.datetime.now()
@@ -281,7 +281,7 @@ def populate_fake_data(num_users: int):
                 
         after = datetime.datetime.now()
         
-        print(f"time to execute searches: {(after-before).total_seconds()}")
+        # print(f"time to execute searches: {(after-before).total_seconds()}")
             
             
 if __name__ == "__main__":
@@ -291,7 +291,7 @@ if __name__ == "__main__":
         
 if __name__ == "__main__":
     # setup_schema()
-    populate_fake_data(25)
+    populate_fake_data(100)
                 
                 
                 
