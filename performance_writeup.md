@@ -124,11 +124,15 @@ user_id=416
 
 #### 6.1 Get Search History - `/history/search` (GET)
 
-**TODO**
+**Request Timing for user with most search history (6948): 410 ms**:
+**Request Timing for user with no search history: 146 ms**:
+**Average: 278 ms**:
 
 #### 6.2 Get Recommendation History - `/history/recommendation` (GET)
 
-**TODO**
+**Request Timing for user with most search history (5930): 160 ms**:
+**Request Timing for user with no search history: 117 ms**:
+**Average: 138.5 ms**:
 
 #### 6.3 Clear Search History - `/history/search/clear` (DELETE)
 
@@ -140,7 +144,7 @@ user_id=416
 
 ## Performance tuning
 
-1. Search 
+### 1. Search 
 
 Search is slow and can be improved by indexing. However, we need to use a 
 FULLTEXT index, becuase we are using the LIKE operator when looking at track name,
@@ -200,4 +204,49 @@ LIMIT 10;
 | Execution Time: 1.191 ms                                                                                                               |
 
 Success! Our planning time has increased slightly, but we've improved our execution performance 250x.
+
+### 2. Create User
+The create user (/user) endpoint is unecessarily slow. Partly, this is due to 
+the check to ensure that there are no existing users with the username that was 
+passed in. We have unique usernames in our system. Let's speed up this endpoint.
+
+First, let's take a look at the query planner. 
+
+| QUERY PLAN                                                                                     |
+| ---------------------------------------------------------------------------------------------- |
+| Seq Scan on users  (cost=0.00..7.71 rows=1 width=26) (actual time=1.480..1.480 rows=0 loops=1) |
+|   Filter: (username = 'bobby'::text)                                                           |
+|   Rows Removed by Filter: 419                                                                  |
+| Planning Time: 2.459 ms                                                                        |
+| Execution Time: 1.609 ms                                                                       |
+
+
+As we can see, we are doing a sequential scan, which is causing the slow performance.
+
+Let's add an index on username with:
+```sql
+CREATE INDEX username_idx ON users (username);
+```
+
+Now, let's double check the query plan.
+
+| QUERY PLAN                                                                                     |
+| ---------------------------------------------------------------------------------------------- |
+| Seq Scan on users  (cost=0.00..8.24 rows=1 width=26) (actual time=0.139..0.143 rows=1 loops=1) |
+|   Filter: (username = 'debug'::text)                                                           |
+|   Rows Removed by Filter: 418                                                                  |
+| Planning Time: 1.004 ms                                                                        |
+| Execution Time: 0.206 ms                                                                       |
+
+Wait! What's going on? Why is it still doing a sequence sqan? Did the index not work?
+No, the index worked. What's happening is that our users table has very little data in
+it compared to the other tables. There are only a few hundred users. The entire user 
+table fits inside one page (8kB) therefore causing the sequential scan despite the 
+available index. However, as our system scales, this index can be helpful in speeding up
+the endpoints. This index may slow down our insertions, so we may want to hold off on 
+its creation until our userbase grows. 
+
+Eventually, with more growth, the username index will also speed up our login endpoint, 
+where we also search users by username.
+
 
