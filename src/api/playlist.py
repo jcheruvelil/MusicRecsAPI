@@ -9,7 +9,7 @@ router = APIRouter(
     tags=["playlist"],
     dependencies=[Depends(auth.get_api_key)],
 )
-    
+
 class Playlist(BaseModel):
     playlist_name: str
 
@@ -105,7 +105,7 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Track does not exist"
             )
         
-        # Check if playlist contains track already
+        # Check if playlist contains track already with a lock
         result = connection.execute(sqlalchemy.text("""
             SELECT COUNT(*) 
             FROM playlist_tracks 
