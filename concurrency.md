@@ -46,7 +46,8 @@ Without proper concurrency control, the following phenomena could occur:
     DB-->>UserB: rating = 9 (uncommitted)
     UserA->>DB: COMMIT
 
-![image](https://gyazo.com/f2fdbb84e49aae7c9c81759cf1ec498b)
+![image](https://github.com/jcheruvelil/MusicRecsAPI/assets/54489933/5e0d0ecb-ca38-45a4-9128-68ce61ec5f08)
+
 
 ### 2. Non-repeatable Read
 
