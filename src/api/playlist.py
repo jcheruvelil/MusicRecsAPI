@@ -1,10 +1,8 @@
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from pydantic import BaseModel
 from src.api import auth
-
 import sqlalchemy
 from src import database as db
-
 
 router = APIRouter(
     prefix="/playlist",
@@ -21,8 +19,9 @@ def get_playlist(playlist_id: int):
 
     with db.engine.begin() as connection:
         try:
-            playlist_name = connection.execute(sqlalchemy.text("SELECT playlist_name FROM playlists WHERE id = :playlist_id"),
-                                            {"playlist_id": playlist_id}).scalar_one()
+            playlist_name = connection.execute(sqlalchemy.text("""
+                SELECT playlist_name FROM playlists WHERE id = :playlist_id
+            """), {"playlist_id": playlist_id}).scalar_one()
 
         except:
             raise HTTPException(
@@ -31,11 +30,11 @@ def get_playlist(playlist_id: int):
             )
         
         result = connection.execute(sqlalchemy.text("""
-                                                    SELECT tracks.track_id, artists, album_name, track_name
-                                                    FROM playlist_tracks
-                                                    JOIN tracks ON tracks.track_id = playlist_tracks.track_id
-                                                    WHERE playlist_id = :playlist_id
-                                                    """), {"playlist_id": playlist_id})
+            SELECT tracks.track_id, artists, album_name, track_name
+            FROM playlist_tracks
+            JOIN tracks ON tracks.track_id = playlist_tracks.track_id
+            WHERE playlist_id = :playlist_id
+        """), {"playlist_id": playlist_id})
         
         for row in result:
             playlist_results.append({
@@ -50,15 +49,10 @@ def get_playlist(playlist_id: int):
 @router.post("/{user_id}")
 def create_playlist(user_id: int, playlist: Playlist):
     with db.engine.begin() as connection:
-        # Check if user exists
-        result = connection.execute(sqlalchemy.text(
-            f"""
-            SELECT COUNT(*)
-            FROM users
-            WHERE id = :user_id
-            """),
-            {"user_id": user_id}
-        ).scalar_one()
+        # Check if user exists with a lock
+        result = connection.execute(sqlalchemy.text("""
+            SELECT COUNT(*) FROM users WHERE id = :user_id FOR UPDATE
+        """), {"user_id": user_id}).scalar_one()
         
         if result < 1:
             raise HTTPException(
@@ -67,17 +61,11 @@ def create_playlist(user_id: int, playlist: Playlist):
             )
         
         # Check if user already has a playlist with this name
-        result = connection.execute(sqlalchemy.text(
-            f"""
-            SELECT COUNT(*)
-            FROM playlists
-            JOIN users ON playlists.user_id = users.id
-            WHERE 
-                users.id = :user_id AND
-                playlists.playlist_name = :playlist_name
-            """),
-            {"user_id": user_id, "playlist_name": playlist.playlist_name}
-        ).scalar_one()
+        result = connection.execute(sqlalchemy.text("""
+            SELECT COUNT(*) 
+            FROM playlists 
+            WHERE user_id = :user_id AND playlist_name = :playlist_name FOR UPDATE
+        """), {"user_id": user_id, "playlist_name": playlist.playlist_name}).scalar_one()
         
         if result != 0:
             raise HTTPException(
@@ -86,46 +74,31 @@ def create_playlist(user_id: int, playlist: Playlist):
             )
         
         # Add the playlist
-        playlist_id = connection.execute(
-            sqlalchemy.text(
-                f"""
-                INSERT INTO playlists (user_id, playlist_name)
-                VALUES (:user_id, :playlist_name)
-                RETURNING id
-                """
-            ),
-            {"user_id": user_id, "playlist_name": playlist.playlist_name}
-        ).scalar_one()
+        playlist_id = connection.execute(sqlalchemy.text("""
+            INSERT INTO playlists (user_id, playlist_name)
+            VALUES (:user_id, :playlist_name)
+            RETURNING id
+        """), {"user_id": user_id, "playlist_name": playlist.playlist_name}).scalar_one()
         
     return {"playlist_id": playlist_id}
 
 @router.post("/{playlist_id}/add/{track_id}")
 def add_song_to_playlist(playlist_id: int, track_id: str):
     with db.engine.begin() as connection:
-        # Check if playlist exists
-        result = connection.execute(sqlalchemy.text(
-            f"""
-            SELECT COUNT(*)
-            FROM playlists
-            WHERE id = :playlist_id
-            """),
-            {"playlist_id": playlist_id}
-        ).scalar_one()
+        # Check if playlist exists with a lock
+        result = connection.execute(sqlalchemy.text("""
+            SELECT COUNT(*) FROM playlists WHERE id = :playlist_id FOR UPDATE
+        """), {"playlist_id": playlist_id}).scalar_one()
         
         if result < 1:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Playlist does not exist"
             )
             
-        # Check if track exists
-        result = connection.execute(sqlalchemy.text(
-            f"""
-            SELECT COUNT(*)
-            FROM tracks
-            WHERE track_id = :track_id
-            """),
-            {"track_id": track_id}
-        ).scalar_one()
+        # Check if track exists with a lock
+        result = connection.execute(sqlalchemy.text("""
+            SELECT COUNT(*) FROM tracks WHERE track_id = :track_id FOR UPDATE
+        """), {"track_id": track_id}).scalar_one()
         
         if result != 0:
             raise HTTPException(
@@ -133,16 +106,11 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             )
         
         # Check if playlist contains track already
-        result = connection.execute(sqlalchemy.text(
-            f"""
-            SELECT COUNT(*)
-            FROM playlist_tracks
-            WHERE 
-                playlist_id = :playlist_id AND
-                track_id = :track_id
-            """),
-            {"playlist_id": playlist_id, "track_id": track_id}
-        ).scalar_one()
+        result = connection.execute(sqlalchemy.text("""
+            SELECT COUNT(*) 
+            FROM playlist_tracks 
+            WHERE playlist_id = :playlist_id AND track_id = :track_id FOR UPDATE
+        """), {"playlist_id": playlist_id, "track_id": track_id}).scalar_one()
         
         if result < 1:
             raise HTTPException(
@@ -150,28 +118,27 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             )
         
         # Add track to playlist
-        connection.execute(sqlalchemy.text(
-            f"""
+        connection.execute(sqlalchemy.text("""
             INSERT INTO playlist_tracks (playlist_id, track_id)
-            VALUES (:playlist_id, :track_id)"""),
-            {"playlist_id": playlist_id, "track_id": track_id}
-        )
+            VALUES (:playlist_id, :track_id)
+        """), {"playlist_id": playlist_id, "track_id": track_id})
         
     return "OK"
 
 @router.delete("/{playlist_id}/remove/{track_id}")
 def remove_song_from_playlist(playlist_id: int, track_id: str):
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(
-            f"""
-            DELETE
-            FROM playlist_tracks
-            WHERE 
-                playlist_id = :playlist_id AND
-                track_id = :track_id
-            """),
-            {"playlist_id": playlist_id, "track_id": track_id}
-        )
+        # Lock the row to be deleted
+        result = connection.execute(sqlalchemy.text("""
+            DELETE FROM playlist_tracks
+            WHERE playlist_id = :playlist_id AND track_id = :track_id
+            RETURNING 1
+        """), {"playlist_id": playlist_id, "track_id": track_id}).scalar_one_or_none()
+        
+        if result is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail="Track not found in playlist"
+            )
         
     return "OK"
-    

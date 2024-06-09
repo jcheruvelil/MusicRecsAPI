@@ -9,7 +9,7 @@ Since our project involves many tables and transactions which all interact with 
 We use:
 
 1. **Locking** locks are used to prevent multiple transactions from modifying a single row at once.
-2. **Time Stamp Protocol** utilized to ensure stability in our transactions, using time stamps to determine a transactions order compared to another
+2. **Isolation levels** ensuring that each data read during a transaction is commitred at time read, preventing dirty reads.
 3. **Atomicity** by ensuring that each transaction is atomic, it allows for every operation in a transaction either occuring and working correctly, or completely none to prevent half updates.
 
 ## Potential Phenomena without Concurrency Control
@@ -41,13 +41,12 @@ Without proper concurrency control, the following phenomena could occur:
     participant DB as Database
 
     UserA->>DB: BEGIN TRANSACTION
-    UserA->>DB: UPDATE tracks SET popularity = 90 WHERE track_id = 1
-    UserB->>DB: SELECT popularity FROM tracks WHERE track_id = 1
-    DB-->>UserB: popularity = 90 (uncommitted)
+    UserA->>DB: UPDATE tracks SET rating = 9 WHERE track_id = 1
+    UserB->>DB: SELECT rating FROM tracks WHERE track_id = 1
+    DB-->>UserB: rating = 9 (uncommitted)
     UserA->>DB: COMMIT
 
-![image](https://github.com/jcheruvelil/MusicRecsAPI/assets/54489933/9f724daf-dba4-401d-be29-efcada5158eb)
-
+![image](https://gyazo.com/f2fdbb84e49aae7c9c81759cf1ec498b)
 
 ### 2. Non-repeatable Read
 
@@ -67,7 +66,6 @@ Without proper concurrency control, the following phenomena could occur:
 
 ![image](https://github.com/jcheruvelil/MusicRecsAPI/assets/54489933/7ec27a3d-bcec-40d9-a1aa-2fa0e8d1fa90)
 
-
 ### 3. Phantom Read
 
     sequenceDiagram
@@ -85,4 +83,3 @@ Without proper concurrency control, the following phenomena could occur:
     UserA->>DB: COMMIT
 
 ![image](https://github.com/jcheruvelil/MusicRecsAPI/assets/54489933/5b291014-92cf-4b73-bc77-53aa79e119f3)
-
