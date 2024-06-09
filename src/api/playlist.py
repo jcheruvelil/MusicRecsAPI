@@ -100,7 +100,7 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             SELECT COUNT(*) FROM tracks WHERE track_id = :track_id FOR UPDATE
         """), {"track_id": track_id}).scalar_one()
         
-        if result != 0:
+        if result < 1:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Track does not exist"
             )
@@ -112,7 +112,7 @@ def add_song_to_playlist(playlist_id: int, track_id: str):
             WHERE playlist_id = :playlist_id AND track_id = :track_id FOR UPDATE
         """), {"playlist_id": playlist_id, "track_id": track_id}).scalar_one()
         
-        if result < 1:
+        if result != 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Playlist already contains this track"
             )
